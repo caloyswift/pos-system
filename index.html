@@ -7,62 +7,84 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Campus Snack Bar POS</h1>
+  <header class="app-header">
+    <span class="brand-icon" aria-hidden="true">🍟</span>
+    <div>
+      <h1>Campus Snack Bar</h1>
+      <p>Point of Sale</p>
+    </div>
   </header>
 
   <main>
     <!-- Section 1: Available products -->
-    <section id="products-section" aria-labelledby="products-heading">
+    <section id="products-section" class="panel" aria-labelledby="products-heading">
       <h2 id="products-heading">Available Products</h2>
-      <ul id="product-list"></ul>
       <p id="add-message" class="message success" role="status" aria-live="polite"></p>
+      <ul id="product-list"></ul>
     </section>
 
-    <div id="right-column">
+    <div id="checkout-column">
       <!-- Section 2: Shopping cart and order summary -->
-      <section id="cart-section" aria-labelledby="cart-heading">
+      <section id="cart-section" class="panel" aria-labelledby="cart-heading">
         <h2 id="cart-heading">Shopping Cart / Order Summary</h2>
-        <p id="cart-empty">The cart is empty. Add a product to start an order.</p>
-        <table id="cart-table" hidden>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th class="num">Unit Price</th>
-              <th class="center">Quantity</th>
-              <th class="num">Subtotal</th>
-              <th>Remove</th>
-            </tr>
-          </thead>
-          <tbody id="cart-body"></tbody>
-        </table>
-        <p class="total-line">Total: <strong id="cart-total">₱0.00</strong></p>
+        <p id="cart-empty">🛒 The cart is empty. Add a product to start an order.</p>
+        <div id="cart-scroll">
+          <table id="cart-table" hidden>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th class="center">Quantity</th>
+                <th class="num">Subtotal</th>
+                <th><span class="visually-hidden">Remove</span></th>
+              </tr>
+            </thead>
+            <tbody id="cart-body"></tbody>
+          </table>
+        </div>
+        <div class="total-bar">
+          <span>Total</span>
+          <strong id="cart-total">₱0.00</strong>
+        </div>
       </section>
 
       <!-- Section 3: Cash payment -->
-      <section id="payment-section" aria-labelledby="payment-heading">
+      <section id="payment-section" class="panel" aria-labelledby="payment-heading">
         <h2 id="payment-heading">Cash Payment</h2>
         <form id="payment-form" novalidate>
           <label for="payment-input">Amount paid (₱)</label>
-          <input type="text" id="payment-input" inputmode="decimal" autocomplete="off" placeholder="e.g. 200.00">
-          <button type="submit" id="pay-button">Confirm Payment</button>
+          <div class="payment-row">
+            <input type="text" id="payment-input" inputmode="decimal" autocomplete="off" placeholder="e.g. 200.00">
+            <button type="submit" id="pay-button">Confirm Payment</button>
+          </div>
           <p id="payment-error" class="message error" role="alert"></p>
         </form>
       </section>
 
-      <!-- Section 4: Payment confirmation and receipt -->
-      <section id="confirmation-section" aria-labelledby="confirmation-heading" hidden>
+      <!-- Section 4a: Payment confirmation -->
+      <section id="confirmation-section" class="panel" aria-labelledby="confirmation-heading" hidden>
         <h2 id="confirmation-heading">Payment Confirmation</h2>
         <p id="payment-success" class="message success" role="status"></p>
         <div id="transaction-details"></div>
-
-        <h3>Digital Receipt</h3>
-        <div id="receipt"></div>
-
-        <button type="button" id="new-transaction-button">New Transaction</button>
+        <div class="button-row">
+          <button type="button" id="view-receipt-button" class="secondary">View Receipt</button>
+          <button type="button" id="new-transaction-button">New Transaction</button>
+        </div>
       </section>
     </div>
   </main>
+
+  <!-- Section 4b: Digital receipt (pop-up). Only the receipt body scrolls. -->
+  <dialog id="receipt-dialog" aria-labelledby="receipt-title">
+    <div class="dialog-header">
+      <h2 id="receipt-title">🧾 Digital Receipt</h2>
+      <button type="button" id="receipt-close-x" class="icon-button" aria-label="Close receipt">✕</button>
+    </div>
+    <div id="receipt"></div>
+    <div class="dialog-footer">
+      <button type="button" id="receipt-close-button" class="secondary">Close</button>
+      <button type="button" id="receipt-new-transaction-button">New Transaction</button>
+    </div>
+  </dialog>
 
   <script src="script.js"></script>
 </body>

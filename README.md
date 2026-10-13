@@ -6,7 +6,7 @@ Built with plain **HTML, CSS, and vanilla JavaScript**. There are no frameworks,
 
 ## Features
 
-- Six hard-coded products with fixed prices
+- Six hard-coded products with fixed prices, each shown on a card with an emoji icon
 - Add to cart (adding the same product again increases its quantity)
 - Increase, decrease (never below 1), and remove cart items
 - Item subtotals and overall total update immediately
@@ -16,17 +16,19 @@ Built with plain **HTML, CSS, and vanilla JavaScript**. There are no frameworks,
   - amounts below the total show "Insufficient payment. Please enter at least ₱X.XX." (calculated from the current total)
   - payment is blocked when the cart is empty
 - Change computed as `amountPaid - totalAmount` only after payment is validated
-- Payment-success message, transaction details, and a digital receipt (transaction number, date/time, items, quantities, unit prices, subtotals, total, amount paid, change)
+- Payment-success message and transaction details in the checkout panel
+- Digital receipt shown in a pop-up window (transaction number, date/time, items, quantities, unit prices, subtotals, total, amount paid, change). Only the receipt body scrolls; the title bar and buttons stay fixed. The pop-up can be closed and reopened with **View Receipt**
 - Duplicate confirmation prevention: after payment, the cart, product buttons, and payment controls are locked
-- "New Transaction" button that clears the cart, payment, messages, confirmation, and receipt
+- "New Transaction" button (in the checkout panel and in the receipt pop-up) that clears the cart, payment, messages, confirmation, and receipt
+- Phase 2 interface: teal and yellow color scheme, product card grid, and a cart panel with a scrollable item list so the total and payment box stay visible
 
 ## File Structure
 
 ```
 snack-bar-pos/
 ├── index.html   Application structure
-├── style.css    Basic styling
-├── script.js    Product data, cart, validation, payment, receipt, and reset logic
+├── style.css    Styling (colors, layout, receipt pop-up)
+├── script.js    Product data, cart, validation, payment, receipt pop-up, and reset logic
 └── README.md    This file
 ```
 

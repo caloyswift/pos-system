@@ -6,16 +6,16 @@
 
 // ----- Product data (hard-coded) -----
 const PRODUCTS = [
-  { id: 1, name: "Classic Burger", price: 5500 },
-  { id: 2, name: "Cheeseburger", price: 6500 },
-  { id: 3, name: "Ham Sandwich", price: 4000 },
-  { id: 4, name: "French Fries (Regular)", price: 4500 },
-  { id: 5, name: "Nachos", price: 5000 },
-  { id: 6, name: "Soda (Can)", price: 2500 }
+  { id: 1, name: "Classic Burger", price: 5500, emoji: "🍔" },
+  { id: 2, name: "Cheeseburger", price: 6500, emoji: "🧀" },
+  { id: 3, name: "Ham Sandwich", price: 4000, emoji: "🥪" },
+  { id: 4, name: "French Fries (Regular)", price: 4500, emoji: "🍟" },
+  { id: 5, name: "Nachos", price: 5000, emoji: "🌮" },
+  { id: 6, name: "Soda (Can)", price: 2500, emoji: "🥤" }
 ];
 
 // ----- In-memory state -----
-let cart = [];                  // items: { id, name, price, quantity }
+let cart = [];                  // items: { id, name, price, emoji, quantity }
 let transactionComplete = false; // true after payment is confirmed
 let transactionCount = 0;        // used to build the transaction number
 
@@ -33,8 +33,13 @@ const paymentError = document.getElementById("payment-error");
 const confirmationSection = document.getElementById("confirmation-section");
 const paymentSuccess = document.getElementById("payment-success");
 const transactionDetails = document.getElementById("transaction-details");
-const receiptBox = document.getElementById("receipt");
+const viewReceiptButton = document.getElementById("view-receipt-button");
 const newTransactionButton = document.getElementById("new-transaction-button");
+const receiptDialog = document.getElementById("receipt-dialog");
+const receiptBox = document.getElementById("receipt");
+const receiptCloseX = document.getElementById("receipt-close-x");
+const receiptCloseButton = document.getElementById("receipt-close-button");
+const receiptNewTransactionButton = document.getElementById("receipt-new-transaction-button");
 
 // ----- Helpers -----
 
@@ -67,12 +72,10 @@ function makeElement(tag, text, className) {
 function renderProducts() {
   productList.innerHTML = "";
   for (const product of PRODUCTS) {
-    const li = document.createElement("li");
+    const li = makeElement("li", undefined, "product-card");
 
-    const info = document.createElement("div");
-    info.appendChild(makeElement("span", product.name, "product-name"));
-    info.appendChild(document.createElement("br"));
-    info.appendChild(makeElement("span", formatPeso(product.price), "product-price"));
+    const emoji = makeElement("span", product.emoji, "product-emoji");
+    emoji.setAttribute("aria-hidden", "true");
 
     const button = makeElement("button", "Add to Cart");
     button.type = "button";
@@ -82,7 +85,9 @@ function renderProducts() {
       addToCart(product.id);
     });
 
-    li.appendChild(info);
+    li.appendChild(emoji);
+    li.appendChild(makeElement("span", product.name, "product-name"));
+    li.appendChild(makeElement("span", formatPeso(product.price), "product-price"));
     li.appendChild(button);
     productList.appendChild(li);
   }
@@ -99,7 +104,13 @@ function addToCart(productId) {
   if (existing) {
     existing.quantity += 1; // repeated additions increase quantity
   } else {
-    cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      emoji: product.emoji,
+      quantity: 1
+    });
   }
 
   addMessage.textContent = "Added " + product.name + " to cart.";
@@ -136,8 +147,16 @@ function renderCart() {
   for (const item of cart) {
     const row = document.createElement("tr");
 
-    row.appendChild(makeElement("td", item.name));
-    row.appendChild(makeElement("td", formatPeso(item.price), "num"));
+    // Item name with emoji and unit price
+    const nameCell = document.createElement("td");
+    const nameLine = makeElement("div", undefined, "item-name");
+    const itemEmoji = makeElement("span", item.emoji, "item-emoji");
+    itemEmoji.setAttribute("aria-hidden", "true");
+    nameLine.appendChild(itemEmoji);
+    nameLine.appendChild(document.createTextNode(item.name));
+    nameCell.appendChild(nameLine);
+    nameCell.appendChild(makeElement("div", formatPeso(item.price) + " each", "item-unit"));
+    row.appendChild(nameCell);
 
     // Quantity cell with - and + buttons
     const qtyCell = makeElement("td", undefined, "center qty-cell");
@@ -160,10 +179,12 @@ function renderCart() {
     qtyCell.appendChild(plus);
     row.appendChild(qtyCell);
 
+    // Subtotal
     row.appendChild(makeElement("td", formatPeso(item.price * item.quantity), "num"));
 
+    // Remove button
     const removeCell = document.createElement("td");
-    const remove = makeElement("button", "Remove");
+    const remove = makeElement("button", "✕", "remove-button");
     remove.type = "button";
     remove.setAttribute("aria-label", "Remove " + item.name + " from cart");
     remove.disabled = transactionComplete;
@@ -262,13 +283,38 @@ function showConfirmation(reference, date, total, amountPaid, change) {
   transactionDetails.appendChild(makeElement("p", "Change: " + formatPeso(change)));
 
   buildReceipt(reference, date, total, amountPaid, change);
-  newTransactionButton.focus();
+  openReceipt();
+}
+
+// Open and close the receipt pop-up (falls back to the "open" attribute
+// in browsers without the <dialog> methods)
+function openReceipt() {
+  if (receiptDialog.open) return;
+  if (typeof receiptDialog.showModal === "function") {
+    receiptDialog.showModal();
+  } else {
+    receiptDialog.setAttribute("open", "");
+  }
+  receiptBox.scrollTop = 0;
+  receiptNewTransactionButton.focus();
+}
+
+function closeReceipt() {
+  if (typeof receiptDialog.close === "function") {
+    receiptDialog.close();
+  } else {
+    receiptDialog.removeAttribute("open");
+  }
 }
 
 function buildReceipt(reference, date, total, amountPaid, change) {
   receiptBox.innerHTML = "";
 
-  receiptBox.appendChild(makeElement("p", "Campus Snack Bar"));
+  const title = makeElement("div", undefined, "receipt-title");
+  title.appendChild(makeElement("strong", "Campus Snack Bar"));
+  title.appendChild(makeElement("span", "Official Receipt"));
+  receiptBox.appendChild(title);
+
   receiptBox.appendChild(makeElement("p", "Transaction No.: " + reference));
   receiptBox.appendChild(makeElement("p", "Date/Time: " + date.toLocaleString()));
 
@@ -296,17 +342,19 @@ function buildReceipt(reference, date, total, amountPaid, change) {
 
   const totals = makeElement("div", undefined, "receipt-totals");
   const lines = [
-    ["Total Amount Due:", formatPeso(total)],
-    ["Amount Paid:", formatPeso(amountPaid)],
-    ["Change:", formatPeso(change)]
+    ["Total Amount Due:", formatPeso(total), "grand"],
+    ["Amount Paid:", formatPeso(amountPaid), ""],
+    ["Change:", formatPeso(change), ""]
   ];
   for (const line of lines) {
-    const p = document.createElement("p");
+    const p = makeElement("p", undefined, line[2]);
     p.appendChild(makeElement("span", line[0]));
     p.appendChild(makeElement("span", line[1]));
     totals.appendChild(p);
   }
   receiptBox.appendChild(totals);
+
+  receiptBox.appendChild(makeElement("p", "Thank you! 🍟", "receipt-thanks"));
 }
 
 // ----- New transaction -----
@@ -314,6 +362,8 @@ function buildReceipt(reference, date, total, amountPaid, change) {
 function startNewTransaction() {
   cart = [];
   transactionComplete = false;
+
+  closeReceipt();
 
   paymentInput.value = "";
   clearPaymentError();
@@ -336,7 +386,11 @@ paymentForm.addEventListener("submit", function (event) {
 });
 
 paymentInput.addEventListener("input", clearPaymentError);
+viewReceiptButton.addEventListener("click", openReceipt);
 newTransactionButton.addEventListener("click", startNewTransaction);
+receiptNewTransactionButton.addEventListener("click", startNewTransaction);
+receiptCloseX.addEventListener("click", closeReceipt);
+receiptCloseButton.addEventListener("click", closeReceipt);
 
 renderProducts();
 renderCart();
