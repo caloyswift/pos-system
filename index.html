@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campus Snack Bar POS</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Campus Snack Bar POS</h1>
+  </header>
+
+  <main>
+    <!-- Section 1: Available products -->
+    <section id="products-section" aria-labelledby="products-heading">
+      <h2 id="products-heading">Available Products</h2>
+      <ul id="product-list"></ul>
+      <p id="add-message" class="message success" role="status" aria-live="polite"></p>
+    </section>
+
+    <div id="right-column">
+      <!-- Section 2: Shopping cart and order summary -->
+      <section id="cart-section" aria-labelledby="cart-heading">
+        <h2 id="cart-heading">Shopping Cart / Order Summary</h2>
+        <p id="cart-empty">The cart is empty. Add a product to start an order.</p>
+        <table id="cart-table" hidden>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="num">Unit Price</th>
+              <th class="center">Quantity</th>
+              <th class="num">Subtotal</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody id="cart-body"></tbody>
+        </table>
+        <p class="total-line">Total: <strong id="cart-total">₱0.00</strong></p>
+      </section>
+
+      <!-- Section 3: Cash payment -->
+      <section id="payment-section" aria-labelledby="payment-heading">
+        <h2 id="payment-heading">Cash Payment</h2>
+        <form id="payment-form" novalidate>
+          <label for="payment-input">Amount paid (₱)</label>
+          <input type="text" id="payment-input" inputmode="decimal" autocomplete="off" placeholder="e.g. 200.00">
+          <button type="submit" id="pay-button">Confirm Payment</button>
+          <p id="payment-error" class="message error" role="alert"></p>
+        </form>
+      </section>
+
+      <!-- Section 4: Payment confirmation and receipt -->
+      <section id="confirmation-section" aria-labelledby="confirmation-heading" hidden>
+        <h2 id="confirmation-heading">Payment Confirmation</h2>
+        <p id="payment-success" class="message success" role="status"></p>
+        <div id="transaction-details"></div>
+
+        <h3>Digital Receipt</h3>
+        <div id="receipt"></div>
+
+        <button type="button" id="new-transaction-button">New Transaction</button>
+      </section>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

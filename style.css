@@ -1,0 +1,96 @@
+* { box-sizing: border-box; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: #f2f2f2;
+  color: #222;
+}
+
+header {
+  background: #2d5a8c;
+  color: #fff;
+  padding: 12px 24px;
+}
+header h1 { margin: 0; font-size: 24px; }
+
+main {
+  display: flex;
+  gap: 20px;
+  padding: 20px 24px;
+  align-items: flex-start;
+}
+
+section {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+section h2 { margin-top: 0; font-size: 18px; }
+
+#products-section { flex: 1; min-width: 280px; }
+#right-column { flex: 2; min-width: 0; }
+
+/* Products */
+#product-list { list-style: none; margin: 0; padding: 0; }
+#product-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+.product-name { font-weight: bold; }
+.product-price { color: #555; }
+
+/* Cart table */
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 8px; border-bottom: 1px solid #e5e5e5; text-align: left; }
+th.num, td.num { text-align: right; }
+th.center, td.center { text-align: center; }
+.qty-cell button { width: 28px; }
+.qty-cell span { display: inline-block; min-width: 28px; text-align: center; }
+.total-line { text-align: right; font-size: 20px; margin-bottom: 0; }
+
+/* Buttons and inputs */
+button {
+  font-size: 15px;
+  padding: 6px 12px;
+  border: 1px solid #2d5a8c;
+  background: #2d5a8c;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: #234a73; }
+button:disabled { background: #bbb; border-color: #bbb; cursor: not-allowed; }
+button:focus, input:focus { outline: 3px solid #f0a500; outline-offset: 1px; }
+
+label { display: block; margin-bottom: 6px; font-weight: bold; }
+input[type="text"] {
+  font-size: 16px;
+  padding: 6px 8px;
+  width: 180px;
+  margin-right: 8px;
+  border: 1px solid #888;
+  border-radius: 4px;
+}
+
+/* Messages */
+.message { min-height: 1.2em; margin: 10px 0 0; font-weight: bold; }
+.message.error { color: #b00020; }
+.message.success { color: #1b7a2f; }
+
+/* Receipt */
+#receipt {
+  border: 1px dashed #666;
+  padding: 12px;
+  background: #fafafa;
+  font-family: "Courier New", monospace;
+  margin-bottom: 16px;
+}
+#receipt table { font-size: 14px; }
+#receipt p { margin: 4px 0; }
+.receipt-totals p { display: flex; justify-content: space-between; }
