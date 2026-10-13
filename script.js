@@ -17,10 +17,19 @@ const PRODUCTS = [
 // ----- In-memory state -----
 let cart = [];                  // items: { id, name, price, emoji, quantity }
 let transactionComplete = false; // true after payment is confirmed
-let transactionCount = 0;        // used to build the transaction number
+const HISTORY_KEY = "campusSnackBarTransactions";
+let transactionHistory = loadTransactionHistory();
+let transactionCount = transactionHistory.length; // used to build the transaction number
 
 // ----- Page elements -----
 const productList = document.getElementById("product-list");
+const historyDialog = document.getElementById("history-dialog");
+const historyOpenButton = document.getElementById("history-open-button");
+const historyCloseButton = document.getElementById("history-close-button");
+const historyDoneButton = document.getElementById("history-done-button");
+const historyList = document.getElementById("history-list");
+const historyEmpty = document.getElementById("history-empty");
+const historyDetails = document.getElementById("history-details");
 const addMessage = document.getElementById("add-message");
 const cartEmpty = document.getElementById("cart-empty");
 const cartTable = document.getElementById("cart-table");
@@ -65,6 +74,23 @@ function makeElement(tag, text, className) {
   if (text !== undefined) el.textContent = text;
   if (className) el.className = className;
   return el;
+}
+
+function loadTransactionHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+    return Array.isArray(saved) ? saved : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveTransactionHistory() {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(transactionHistory));
+  } catch (error) {
+    // The current session remains usable when browser storage is unavailable.
+  }
 }
 
 // ----- Products -----
@@ -260,8 +286,79 @@ function processPayment() {
   const now = new Date();
   const reference = makeTransactionReference(now, transactionCount);
 
+  const transaction = {
+    reference: reference,
+    date: now.toISOString(),
+    items: cart.map(function (item) { return { ...item }; }),
+    total: total,
+    amountPaid: amountPaid,
+    change: change
+  };
+  transactionHistory.unshift(transaction);
+  saveTransactionHistory();
+  renderHistory();
+
   renderCart(); // locks the cart, product buttons and payment controls
   showConfirmation(reference, now, total, amountPaid, change);
+}
+
+function renderHistory() {
+  historyList.innerHTML = "";
+  historyEmpty.hidden = transactionHistory.length > 0;
+  historyDetails.hidden = true;
+  historyDetails.innerHTML = "";
+
+  for (const transaction of transactionHistory) {
+    const li = document.createElement("li");
+    const button = makeElement("button", undefined, "history-entry");
+    button.type = "button";
+    button.appendChild(makeElement("strong", transaction.reference));
+    button.appendChild(makeElement("span", new Date(transaction.date).toLocaleString()));
+    button.appendChild(makeElement("span", formatPeso(transaction.total)));
+    button.addEventListener("click", function () { showHistoryDetails(transaction); });
+    li.appendChild(button);
+    historyList.appendChild(li);
+  }
+}
+
+function openHistory() {
+  renderHistory();
+  if (typeof historyDialog.showModal === "function") historyDialog.showModal();
+  else historyDialog.setAttribute("open", "");
+}
+
+function closeHistory() {
+  if (typeof historyDialog.close === "function") historyDialog.close();
+  else historyDialog.removeAttribute("open");
+}
+
+function showHistoryDetails(transaction) {
+  historyDetails.innerHTML = "";
+  historyDetails.hidden = false;
+  historyDetails.appendChild(makeElement("h3", transaction.reference));
+  historyDetails.appendChild(makeElement("p", new Date(transaction.date).toLocaleString()));
+
+  const table = document.createElement("table");
+  const head = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  ["Item", "Qty", "Subtotal"].forEach(function (label, index) {
+    headRow.appendChild(makeElement("th", label, index === 0 ? "" : "num"));
+  });
+  head.appendChild(headRow);
+  table.appendChild(head);
+  const body = document.createElement("tbody");
+  for (const item of transaction.items) {
+    const row = document.createElement("tr");
+    row.appendChild(makeElement("td", item.name));
+    row.appendChild(makeElement("td", String(item.quantity), "num"));
+    row.appendChild(makeElement("td", formatPeso(item.price * item.quantity), "num"));
+    body.appendChild(row);
+  }
+  table.appendChild(body);
+  historyDetails.appendChild(table);
+  historyDetails.appendChild(makeElement("p", "Total: " + formatPeso(transaction.total)));
+  historyDetails.appendChild(makeElement("p", "Paid: " + formatPeso(transaction.amountPaid)));
+  historyDetails.appendChild(makeElement("p", "Change: " + formatPeso(transaction.change)));
 }
 
 function makeTransactionReference(date, number) {
@@ -386,6 +483,9 @@ paymentForm.addEventListener("submit", function (event) {
 });
 
 paymentInput.addEventListener("input", clearPaymentError);
+historyOpenButton.addEventListener("click", openHistory);
+historyCloseButton.addEventListener("click", closeHistory);
+historyDoneButton.addEventListener("click", closeHistory);
 viewReceiptButton.addEventListener("click", openReceipt);
 newTransactionButton.addEventListener("click", startNewTransaction);
 receiptNewTransactionButton.addEventListener("click", startNewTransaction);
@@ -394,3 +494,4 @@ receiptCloseButton.addEventListener("click", closeReceipt);
 
 renderProducts();
 renderCart();
+renderHistory();

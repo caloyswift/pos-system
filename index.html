@@ -13,6 +13,7 @@
       <h1>Campus Snack Bar</h1>
       <p>Point of Sale</p>
     </div>
+    <button type="button" id="history-open-button" class="secondary">Transaction History</button>
   </header>
 
   <main>
@@ -83,6 +84,21 @@
     <div class="dialog-footer">
       <button type="button" id="receipt-close-button" class="secondary">Close</button>
       <button type="button" id="receipt-new-transaction-button">New Transaction</button>
+    </div>
+  </dialog>
+
+  <dialog id="history-dialog" aria-labelledby="history-heading">
+    <div class="dialog-header">
+      <h2 id="history-heading">Transaction History</h2>
+      <button type="button" id="history-close-button" class="icon-button" aria-label="Close history">✕</button>
+    </div>
+    <div id="history-content">
+      <p id="history-empty">No transactions yet.</p>
+      <ul id="history-list"></ul>
+      <div id="history-details" hidden></div>
+    </div>
+    <div class="dialog-footer">
+      <button type="button" id="history-done-button" class="secondary">Close</button>
     </div>
   </dialog>
 
